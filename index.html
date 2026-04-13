@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ハムのNiche Finder">
+<meta name="theme-color" content="#C4956A">
+<title>ハムのNiche Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Opti:wght@400;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ham:#C4956A;--ham2:#A67C52;--ham3:#8B6340;
+  --cheek:#FFB5A7;--seed:#F4A261;--seed2:#E08040;
+  --cream:#FFF8F0;--white:#FFF;
+  --ink:#3D2B1F;--muted:#9E8070;
+  --border:#EFE0D0;--light:#FFF3E8;
+  --green:#6BAA75;--blue:#5BA4CF;
+  --shadow:0 4px 24px rgba(100,60,20,.1);
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;display:flex;flex-direction:column;max-width:430px;margin:0 auto}
+
+/* ══ スプラッシュ ══ */
+#splash{
+  position:fixed;inset:0;z-index:999;
+  background:linear-gradient(160deg,#C4956A 0%,#F4A261 50%,#FFD4A3 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  transition:opacity .7s,transform .7s;
+}
+#splash.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+.sp-title{font-family:'Kaisei Opti',serif;font-size:28px;color:#fff;margin-top:12px;letter-spacing:.03em}
+.sp-sub{font-size:13px;color:rgba(255,255,255,.85);margin-top:5px;font-weight:600}
+.sp-dots{display:flex;gap:7px;margin-top:22px}
+.sp-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6);animation:dp 1.4s ease-in-out infinite}
+.sp-dot:nth-child(2){animation-delay:.2s}.sp-dot:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,60%,100%{opacity:.4;transform:scale(1)}30%{opacity:1;transform:scale(1.3)}}
+
+/* ══ ハムスターSVG ══ */
+.sp-ham{font-size:80px;animation:hamBounce 2s ease-in-out infinite;margin-bottom:4px;filter:drop-shadow(0 6px 12px rgba(100,50,0,.2))}
+.sp-paws{font-size:20px;letter-spacing:8px;margin-bottom:14px;opacity:.7}
+.hero-ham{font-size:64px;display:block;margin-bottom:6px;animation:hamFloat 3s ease-in-out infinite}
+.load-ham-emoji{font-size:80px;animation:hamBounce 1s ease-in-out infinite}
+.brand-mark-emoji{font-size:22px;width:38px;height:38px;background:linear-gradient(135deg,var(--ham),var(--seed));border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(196,149,106,.4)}
+@keyframes hamFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+@keyframes hamBounce{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+
+/* ══ ヘッダー ══ */
+.app-header{background:var(--white);padding:10px 16px 10px;border-bottom:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 14px rgba(100,60,20,.08)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-texts .brand-name{font-family:'Kaisei Opti',serif;font-size:16px;color:var(--ink)}
+.brand-name b{color:var(--ham2)}
+.brand-sub{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.free-pill{font-size:10px;font-weight:800;background:linear-gradient(135deg,#FFF0E0,#FFE4C8);color:var(--ham2);padding:4px 11px;border-radius:20px;border:1.5px solid #F0C9A0}
+
+/* ══ スクロール ══ */
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:90px}
+.scroll-area::-webkit-scrollbar{display:none}
+.page{display:none}.page.active{display:block}
+
+/* ══ ホーム ══ */
+.home-hero{background:linear-gradient(170deg,#FFF0E0,var(--white));padding:24px 20px 22px;text-align:center;border-bottom:2px solid var(--border);position:relative;overflow:hidden}
+.home-hero::before{content:'🐾  🌻  🐾  🌻  🐾  🌻  🐾';position:absolute;top:7px;left:0;right:0;font-size:13px;opacity:.1;letter-spacing:6px;white-space:nowrap}
+.hero-badge{display:inline-block;background:linear-gradient(135deg,var(--cheek),#FF9A8A);color:#fff;font-size:10px;font-weight:800;padding:3px 13px;border-radius:20px;margin-bottom:10px;letter-spacing:.05em}
+.hero-title{font-family:'Kaisei Opti',serif;font-size:25px;line-height:1.25;margin-bottom:10px}
+.hero-title em{font-style:normal;color:var(--ham2)}
+.hero-sub{font-size:13px;color:var(--muted);line-height:1.8;font-weight:600}
+.home-steps{padding:16px 18px 6px}
+.step-card{background:var(--white);border-radius:14px;border:2px solid var(--border);padding:13px 15px;margin-bottom:10px;display:flex;align-items:flex-start;gap:11px;box-shadow:0 2px 8px rgba(100,60,20,.05)}
+.step-num{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}
+.step-body h3{font-size:13px;font-weight:800;margin-bottom:2px}.step-body p{font-size:11px;color:var(--muted);line-height:1.6;font-weight:600}
+.ex-wrap{padding:4px 18px 14px;display:flex;flex-wrap:wrap;gap:6px}
+.ex-chip{padding:5px 11px;border-radius:20px;background:var(--white);border:1.5px solid var(--border);font-size:11px;font-weight:700;color:var(--muted)}
+.ex-chip b{color:var(--ham2)}
+.btn-start{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 36px);margin:0 18px 22px;padding:16px;background:linear-gradient(135deg,var(--ham),var(--seed));color:#fff;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(196,149,106,.45);transition:all .15s}
+.btn-start:active{transform:scale(.98)}
+
+/* ══ フォーム ══ */
+.form-header{background:linear-gradient(135deg,var(--ham),var(--seed));padding:20px 20px 16px;position:relative;overflow:hidden}
+.form-header::after{content:'🐾';position:absolute;right:14px;bottom:-10px;font-size:60px;opacity:.15;transform:rotate(15deg)}
+.form-header h2{font-family:'Kaisei Opti',serif;font-size:21px;color:#fff;margin-bottom:3px}
+.form-header p{font-size:12px;color:rgba(255,255,255,.9);font-weight:600}
+.form-body{padding:13px 16px 6px}
+.q-card{background:var(--white);border-radius:16px;border:2px solid var(--border);padding:14px 15px;margin-bottom:12px;box-shadow:0 2px 8px rgba(100,60,20,.05)}
+.q-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.q-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.q-lbl{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.q-title{font-size:14px;font-weight:800;margin-bottom:10px;line-height:1.4}
+.tag-grid{display:flex;flex-wrap:wrap;gap:6px}
+.tag-btn{padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink);transition:all .15s}
+.tag-btn:active{transform:scale(.93)}
+.tag-btn.sel{background:linear-gradient(135deg,var(--ham),var(--seed));border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(196,149,106,.4)}
+.btn-analyze{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:394px;padding:15px;background:linear-gradient(135deg,var(--ham),var(--seed));color:#fff;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 6px 24px rgba(196,149,106,.5);z-index:20;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
+.btn-analyze:disabled{opacity:.32;box-shadow:none}
+
+/* ══ ローディング ══ */
+#loading-page{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;padding:40px 20px;text-align:center}
+#loading-page.show{display:flex}
+.load-title{font-family:'Kaisei Opti',serif;font-size:21px;color:var(--ink);margin-top:14px;margin-bottom:7px}
+.load-msg{font-size:12px;color:var(--muted);font-weight:700;min-height:20px;transition:all .3s}
+.load-track{width:200px;height:5px;background:var(--border);border-radius:3px;margin-top:18px;overflow:hidden}
+.load-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ham),var(--seed),var(--cheek));transition:width .5s ease}
+.load-seeds{font-size:16px;letter-spacing:5px;margin-top:12px;animation:seedAnim 1.8s ease-in-out infinite}
+@keyframes seedAnim{0%,100%{opacity:.5;letter-spacing:5px}50%{opacity:1;letter-spacing:9px}}
+
+/* ══ 結果 ══ */
+.result-hero{background:linear-gradient(160deg,#FFF0E0,var(--white));padding:20px 20px 16px;border-bottom:2px solid var(--border);text-align:center}
+.r-tag{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--cheek),#FF9A8A);color:#fff;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;margin-bottom:8px}
+.r-title{font-family:'Kaisei Opti',serif;font-size:20px;line-height:1.3;color:var(--ink);margin-bottom:7px}
+.r-summary{font-size:12px;color:var(--muted);line-height:1.8;font-weight:600}
+.r-sec{padding:16px 18px;border-bottom:2px solid var(--border)}
+.r-sec:last-child{border-bottom:none}
+.sec-lbl{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:5px}
+.sec-lbl::after{content:'';flex:1;height:1.5px;background:var(--border)}
+
+/* ニッチカード */
+.niche-list{display:flex;flex-direction:column;gap:9px}
+.niche-card{background:var(--white);border:2px solid var(--border);border-radius:14px;padding:13px 15px;box-shadow:0 2px 8px rgba(100,60,20,.05)}
+.niche-top{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.niche-num{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff}
+.niche-name{font-size:15px;font-weight:800;color:var(--ink);flex:1;line-height:1.2}
+.niche-lv{font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.niche-reason{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:7px;font-weight:600}
+.niche-example{font-size:11px;background:var(--light);border-radius:9px;padding:8px 11px;line-height:1.6;border-left:3px solid var(--seed);font-weight:600}
+
+/* ══ 商品カード（タップで詳細展開）══ */
+.product-list{display:flex;flex-direction:column;gap:10px}
+.product-card{
+  background:var(--white);border:2px solid var(--border);border-radius:16px;
+  overflow:hidden;cursor:pointer;
+  box-shadow:0 2px 10px rgba(100,60,20,.06);
+  transition:transform .15s,box-shadow .15s;
+}
+.product-card:active{transform:scale(.99)}
+.product-card.open{border-color:var(--ham);box-shadow:0 4px 20px rgba(196,149,106,.2)}
+.product-header{display:flex;align-items:center;gap:12px;padding:13px 15px}
+.p-icon-wrap{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.p-main{flex:1;min-width:0}
+.p-name{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px}
+.p-desc{font-size:11px;color:var(--muted);font-weight:600;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-arrow{font-size:16px;color:var(--muted);transition:transform .25s;flex-shrink:0}
+.product-card.open .p-arrow{transform:rotate(180deg)}
+
+/* 詳細パネル */
+.product-detail{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease,padding .3s ease;
+  background:var(--light);
+}
+.product-card.open .product-detail{max-height:800px}
+.detail-inner{padding:14px 15px 16px;border-top:1.5px solid var(--border)}
+
+/* 詳細セクション */
+.detail-block{margin-bottom:14px}
+.detail-block:last-child{margin-bottom:0}
+.detail-ttl{font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--ham2);margin-bottom:7px}
+.detail-text{font-size:12px;line-height:1.75;font-weight:600;color:var(--ink)}
+
+/* コピーできるタイトルテンプレ */
+.title-template{
+  background:var(--white);border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 13px;font-size:12px;font-weight:700;line-height:1.6;
+  color:var(--ink);position:relative;margin-bottom:6px;
+}
+.btn-copy-title{
+  display:flex;align-items:center;gap:4px;margin-top:4px;
+  padding:6px 12px;background:var(--white);border:1.5px solid var(--border);
+  border-radius:8px;font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;
+  color:var(--muted);cursor:pointer;transition:all .15s;
+}
+.btn-copy-title.ok{background:#F0FFF4;border-color:#86EFAC;color:var(--green)}
+.btn-copy-title:hover{border-color:var(--ham);color:var(--ham2)}
+
+/* 難易度バー */
+.diff-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.diff-label{font-size:11px;font-weight:700;color:var(--muted);width:48px;flex-shrink:0}
+.diff-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.diff-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.diff-val{font-size:11px;font-weight:800;width:28px;text-align:right;flex-shrink:0}
+
+/* ステップリスト */
+.step-list{display:flex;flex-direction:column;gap:6px}
+.step-item{display:flex;gap:9px;align-items:flex-start}
+.s-num{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--ham),var(--seed));color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.s-text{font-size:12px;line-height:1.65;font-weight:700;color:var(--ink)}
+
+/* photo tip */
+.photo-tip{background:var(--white);border-radius:10px;padding:10px 13px;font-size:11px;line-height:1.7;font-weight:600;color:var(--ink);border:1.5px solid var(--border)}
+.photo-tip span{color:var(--ham2);font-weight:800}
+
+/* キーワード */
+.kw-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.kw-tag{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--white);border:1.5px solid var(--border)}
+.kw-tag.hot{background:#FFF0E8;border-color:var(--ham);color:var(--ham2)}
+.btn-kw{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;color:var(--muted);cursor:pointer;transition:all .15s}
+.btn-kw.ok{background:#F0FFF4;border-color:#86EFAC;color:var(--green)}
+
+/* 価格 */
+.price-big{font-family:'Kaisei Opti',serif;font-size:26px;color:var(--ham2);margin-bottom:4px}
+.price-note{font-size:12px;color:var(--muted);line-height:1.7;font-weight:600}
+
+/* アクション */
+.action-list{display:flex;flex-direction:column;gap:7px}
+.action-item{display:flex;gap:9px;align-items:flex-start;background:var(--white);border:2px solid var(--border);border-radius:11px;padding:10px 12px}
+.a-num{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--ham),var(--seed));color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.a-text{font-size:12px;line-height:1.65;font-weight:700}
+
+.btn-retry{display:block;width:calc(100% - 36px);margin:14px 18px 8px;padding:13px;background:var(--white);border:2px solid var(--ham);border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;color:var(--ham2);cursor:pointer;text-align:center}
+
+/* ══ ボトムナビ ══ */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--white);border-top:2px solid var(--border);display:flex;justify-content:space-around;padding:7px 0 max(7px,env(safe-area-inset-bottom));z-index:30;box-shadow:0 -2px 14px rgba(100,60,20,.08)}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 16px;font-family:'Nunito',sans-serif}
+.n-icon{font-size:22px;transition:transform .2s}.n-label{font-size:9px;font-weight:800;color:var(--muted)}
+.nav-btn.active .n-label{color:var(--ham2)}.nav-btn.active .n-icon{transform:scale(1.2)}
+
+#toast{position:fixed;top:76px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 20px;border-radius:20px;font-size:12px;font-weight:700;z-index:9999;display:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+
+<!-- ══ スプラッシュ ══ -->
+<div id="splash">
+  <div class="sp-ham">🐹</div>
+  <div class="sp-paws">🐾🌻🐾</div>
+  <div class="sp-title">ハムのNiche Finder</div>
+  <div class="sp-sub">あなたの経験をEtsyで収入に変える</div>
+  <div class="sp-dots"><div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div></div>
+</div>
+
+<!-- ══ ヘッダー ══ -->
+<div class="app-header">
+  <div class="brand">
+    <div class="brand-mark-emoji">🐹</div>
+    <div class="brand-texts">
+      <div class="brand-name"><b>ハム</b>のNiche Finder</div>
+      <div class="brand-sub">by ハム • Etsy特化ツール</div>
+    </div>
+  </div>
+  <div class="free-pill">🌻 無料</div>
+</div>
+
+<div class="scroll-area" id="scroll-area">
+
+  <!-- ══ ホーム ══ -->
+  <div class="page active" id="page-home">
+    <div class="home-hero">
+      <span class="hero-ham">🐹</span>
+      <div class="hero-badge">🌻 ハムが見つけてくれる</div>
+      <h2 class="hero-title">あなたの<em>経験・資格・趣味</em>が<br>Etsyのニッチになる</h2>
+      <p class="hero-sub">タグをタップするだけ。登録もAPIも一切不要。<br>ハムがあなただけのニッチを見つけます🐾</p>
+    </div>
+    <div class="home-steps">
+      <div class="step-card"><div class="step-num" style="background:linear-gradient(135deg,#C4956A,#F4A261)">1</div><div class="step-body"><h3>🏷️ タグをタップするだけ</h3><p>仕事・趣味・スタイルをタップ選択。入力は一切不要</p></div></div>
+      <div class="step-card"><div class="step-num" style="background:linear-gradient(135deg,#FFB5A7,#FF9080)">2</div><div class="step-body"><h3>🐹 ハムがニッチを発見</h3><p>あなたの強みに合ったEtsyニッチを3〜4個提案</p></div></div>
+      <div class="step-card"><div class="step-num" style="background:linear-gradient(135deg,#6BAA75,#4CAF60)">3</div><div class="step-body"><h3>📋 商品をタップして深掘り</h3><p>タイトルテンプレ・作り方・写真のコツまで一気にわかる</p></div></div>
+    </div>
+    <div style="padding:0 18px 8px"><p style="font-size:11px;font-weight:700;color:var(--muted)">こんな方が使っています 👇</p></div>
+    <div class="ex-wrap">
+      <div class="ex-chip">👶 保育士 → <b>キッズ素材</b></div>
+      <div class="ex-chip">🌿 アロマ → <b>ウェルネス</b></div>
+      <div class="ex-chip">🧘 ヨガ → <b>マインドフル</b></div>
+      <div class="ex-chip">🖌️ 水彩 → <b>クリップアート</b></div>
+      <div class="ex-chip">⛩️ 和風 → <b>Japan素材</b></div>
+      <div class="ex-chip">💒 ウェディング → <b>招待状</b></div>
+      <div class="ex-chip">🌙 スピリチュアル → <b>月星座</b></div>
+      <div class="ex-chip">🐾 動物好き → <b>ペット素材</b></div>
+    </div>
+    <button class="btn-start" id="btn-go-form"><span>🐹</span><span>ニッチを発見する（無料）</span></button>
+  </div>
+
+  <!-- ══ フォーム ══ -->
+  <div class="page" id="page-form">
+    <div class="form-header"><h2>あなたのことを教えてね🐾</h2><p>タグをタップするだけ！複数OK。多いほど精度が上がります</p></div>
+    <div class="form-body">
+      <div class="q-card">
+        <div class="q-head"><div class="q-icon" style="background:#FFF0E8">💼</div><div class="q-lbl" style="color:var(--ham2)">仕事・資格・専門スキル</div></div>
+        <div class="q-title">あなたの仕事や資格は？（複数OK）</div>
+        <div class="tag-grid" id="tags-job">
+          <button class="tag-btn" data-val="nursery">👶 保育士・幼稚園教諭</button>
+          <button class="tag-btn" data-val="nurse">🏥 看護師・助産師</button>
+          <button class="tag-btn" data-val="doctor">👨‍⚕️ 医師・薬剤師</button>
+          <button class="tag-btn" data-val="aroma">🌿 アロマセラピスト</button>
+          <button class="tag-btn" data-val="yoga">🧘 ヨガ・ピラティス講師</button>
+          <button class="tag-btn" data-val="cooking">🍳 料理家・フード系</button>
+          <button class="tag-btn" data-val="patissier">🍰 パティシエ・製菓</button>
+          <button class="tag-btn" data-val="design">🎨 デザイナー</button>
+          <button class="tag-btn" data-val="illustrator">✏️ イラストレーター</button>
+          <button class="tag-btn" data-val="teacher">📚 教師・塾講師</button>
+          <button class="tag-btn" data-val="piano">🎹 音楽・ピアノ講師</button>
+          <button class="tag-btn" data-val="spiritual">🔮 占い師・スピリチュアル</button>
+          <button class="tag-btn" data-val="wedding">💒 ウェディング関係</button>
+          <button class="tag-btn" data-val="photo">📷 カメラマン・写真家</button>
+          <button class="tag-btn" data-val="florist">💐 フローリスト</button>
+          <button class="tag-btn" data-val="fashion">👗 ファッション・服飾</button>
+          <button class="tag-btn" data-val="interior">🏠 インテリア・建築</button>
+          <button class="tag-btn" data-val="fitness">💪 トレーナー・スポーツ</button>
+          <button class="tag-btn" data-val="beauty">💄 美容師・ネイリスト</button>
+          <button class="tag-btn" data-val="writer">📝 ライター・編集者</button>
+          <button class="tag-btn" data-val="craft">🧶 クラフト作家</button>
+          <button class="tag-btn" data-val="it">💻 エンジニア・IT系</button>
+          <button class="tag-btn" data-val="therapist">🫶 心理士・カウンセラー</button>
+          <button class="tag-btn" data-val="midwife">🍼 助産師・産後ケア</button>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-head"><div class="q-icon" style="background:#FFE8F0">🎨</div><div class="q-lbl" style="color:#E07060">趣味・好きなこと</div></div>
+        <div class="q-title">趣味や好きなことは？（複数OK）</div>
+        <div class="tag-grid" id="tags-hobby">
+          <button class="tag-btn" data-val="watercolor">🖌️ 水彩・アクリル画</button>
+          <button class="tag-btn" data-val="digital">💻 デジタルイラスト</button>
+          <button class="tag-btn" data-val="oilpaint">🎭 油絵・板絵</button>
+          <button class="tag-btn" data-val="embroidery">🧵 刺繍・クロスステッチ</button>
+          <button class="tag-btn" data-val="calligraphy">✒️ カリグラフィー</button>
+          <button class="tag-btn" data-val="knitting">🧶 編み物・かぎ針</button>
+          <button class="tag-btn" data-val="sewing">✂️ ソーイング・裁縫</button>
+          <button class="tag-btn" data-val="resin">💎 レジン・ハンドメイド</button>
+          <button class="tag-btn" data-val="pottery">🏺 陶芸・粘土細工</button>
+          <button class="tag-btn" data-val="garden">🌱 ガーデニング・植物</button>
+          <button class="tag-btn" data-val="japanese">⛩️ 和風・日本文化</button>
+          <button class="tag-btn" data-val="korean">🌸 韓国・K-culture</button>
+          <button class="tag-btn" data-val="minimal">⬜ ミニマル・北欧</button>
+          <button class="tag-btn" data-val="retro">📻 ヴィンテージ・レトロ</button>
+          <button class="tag-btn" data-val="animal">🐾 動物・ペット全般</button>
+          <button class="tag-btn" data-val="cat">🐱 猫が大好き</button>
+          <button class="tag-btn" data-val="dog">🐶 犬が大好き</button>
+          <button class="tag-btn" data-val="hamster">🐹 ハムスター好き</button>
+          <button class="tag-btn" data-val="bird">🐦 小鳥・インコ好き</button>
+          <button class="tag-btn" data-val="astro">⭐ 星座・占星術</button>
+          <button class="tag-btn" data-val="moon">🌙 月・スピリチュアル</button>
+          <button class="tag-btn" data-val="travel">✈️ 旅行・異文化</button>
+          <button class="tag-btn" data-val="anime">🎌 アニメ・漫画</button>
+          <button class="tag-btn" data-val="fantasy">🧚 ファンタジー・魔法</button>
+          <button class="tag-btn" data-val="nature">🌲 自然・アウトドア</button>
+          <button class="tag-btn" data-val="christmas">🎄 クリスマス・季節</button>
+          <button class="tag-btn" data-val="halloween">🎃 ハロウィン系</button>
+          <button class="tag-btn" data-val="baby">🍼 赤ちゃん・マタニティ</button>
+          <button class="tag-btn" data-val="planner">📔 手帳・ジャーナリング</button>
+          <button class="tag-btn" data-val="coffee">☕ カフェ・コーヒー</button>
+          <button class="tag-btn" data-val="boho">🌞 ボヘミアン・ナチュラル</button>
+          <button class="tag-btn" data-val="music">🎵 音楽・楽器</button>
+          <button class="tag-btn" data-val="cooking_h">🧁 お菓子作り・料理</button>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-head"><div class="q-icon" style="background:#E8F5E9">🛍️</div><div class="q-lbl" style="color:var(--green)">売りたい商品タイプ</div></div>
+        <div class="q-title">どんな形式で売りたい？</div>
+        <div class="tag-grid" id="tags-type">
+          <button class="tag-btn" data-val="clipart">🖼️ クリップアート・PNG</button>
+          <button class="tag-btn" data-val="template">📋 テンプレート（Canva等）</button>
+          <button class="tag-btn" data-val="art">🎨 ウォールアート・ポスター</button>
+          <button class="tag-btn" data-val="digital_dl">📥 デジタルダウンロード全般</button>
+          <button class="tag-btn" data-val="pattern">📐 パターン・図案PDF</button>
+          <button class="tag-btn" data-val="planner_dl">📓 プランナー・デジタル手帳</button>
+          <button class="tag-btn" data-val="card">💌 カード・招待状</button>
+          <button class="tag-btn" data-val="sticker">🏷️ ステッカー・シール</button>
+          <button class="tag-btn" data-val="handmade">🤝 ハンドメイド実物</button>
+          <button class="tag-btn" data-val="undecided">❓ まだ決めていない</button>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-head"><div class="q-icon" style="background:#FFF8E1">✨</div><div class="q-lbl" style="color:var(--seed2)">あなたのデザインスタイル</div></div>
+        <div class="q-title">自分のスタイルに近いものは？</div>
+        <div class="tag-grid" id="tags-style">
+          <button class="tag-btn" data-val="cute">🍭 かわいい・ポップ</button>
+          <button class="tag-btn" data-val="elegant">👑 エレガント・上品</button>
+          <button class="tag-btn" data-val="natural_s">🌿 ナチュラル・癒やし</button>
+          <button class="tag-btn" data-val="cool">🖤 クール・モダン</button>
+          <button class="tag-btn" data-val="funny">😄 ユーモア・おもしろ</button>
+          <button class="tag-btn" data-val="educational">📖 教育的・わかりやすい</button>
+          <button class="tag-btn" data-val="luxury">💎 ラグジュアリー</button>
+          <button class="tag-btn" data-val="handmade_feel">🧁 手作り感・温かみ</button>
+        </div>
+      </div>
+      <div style="height:90px"></div>
+    </div>
+    <button class="btn-analyze" id="btn-analyze" disabled>
+      <span>🐹</span><span id="btn-label">タグを選んでください</span>
+    </button>
+  </div>
+
+  <!-- ══ ローディング ══ -->
+  <div id="loading-page">
+    <div class="load-ham-emoji" id="load-ham-svg">🐹</div>
+    <div class="load-title">ハムが探索中...</div>
+    <div class="load-msg" id="load-msg">あなたの強みを整理しています</div>
+    <div class="load-track"><div class="load-fill" id="load-fill" style="width:0%"></div></div>
+    <div class="load-seeds" id="load-seeds">🌻 🌻 🌻</div>
+  </div>
+
+  <!-- ══ 結果 ══ -->
+  <div class="page" id="page-result">
+    <div class="result-hero">
+      <div class="r-tag">🐹 ハムが見つけました！</div>
+      <div class="r-title" id="r-title"></div>
+      <div class="r-summary" id="r-summary"></div>
+    </div>
+    <div id="r-sections"></div>
+    <button class="btn-retry" id="btn-retry">🔄 もう一度診断する</button>
+    <div style="height:60px"></div>
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn active" data-page="home"><span class="n-icon">🏠</span><span class="n-label">ホーム</span></button>
+  <button class="nav-btn" data-page="form"><span class="n-icon">🔍</span><span class="n-label">診断</span></button>
+  <button class="nav-btn" data-page="result" id="nav-result"><span class="n-icon">🌻</span><span class="n-label">結果</span></button>
+</div>
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// ニッチDB（詳細版）
+// ════════════════════════════════════════
+const DB = [
+  {
+    id:'kids_clipart',name:'キッズ向けクリップアート',color:'#FF8C69',
+    tags:{job:['nursery','teacher','illustrator','midwife'],hobby:['watercolor','digital','animal','cat','dog','hamster','baby','christmas'],type:['clipart','digital_dl','sticker']},
+    reason:'保育・教育のプロが作ると子供心理を理解した「本当に使えるデザイン」になります。世界中の親・先生が毎日Etsyで探しています',
+    example:'💡 例：水彩動物のPNG透過素材セット、誕生日クリップアートバンドル、季節イベント素材',
+    keywords:['kawaii animal clipart','cute birthday clipart','kids party printable','classroom decor','nursery clipart bundle','watercolor animals png','baby shower clipart'],
+    price:'$4〜$10',price_note:'バンドル（20枚以上セット）が最も売れる。単品$1より「20枚$6」が断然売れやすい',
+    actions:['Procreateで動物5種類を描いてPNG透過で書き出す','ZipにまとめてEtsyにアップロード','タイトルに「kawaii」「bundle」「png」を必ず入れる'],
+    products:[
+      {
+        icon:'🐻',name:'かわいい動物クリップアートセット',desc:'透過PNG・水彩タッチ。20枚バンドルが売れ筋',
+        titleTemplate:'Kawaii Animal Clipart Bundle | Cute Watercolor Animals PNG | Nursery Clipart | Commercial Use',
+        difficulty:{demand:88,competition:65,profit:82},
+        makeSteps:['Procreateで動物5種類×表情2パターン＝10枚描く','背景を透明にしてPNG書き出し（300dpi）','Zipファイルにまとめる（Preview画像も入れると◎）','Etsyにアップロード・価格は$5.99〜$7.99が売れ筋'],
+        photoTip:'<span>白背景</span>に並べたフラットレイと、<span>実際の使用例</span>（カード・ステッカー風モックアップ）の2枚が最低必要。Canvaの無料モックアップで作れます',
+        extraKw:['cute woodland animals','forest friends clipart','baby animals watercolor','kawaii illustration']
+      },
+      {
+        icon:'🎂',name:'誕生日パーティー素材バンドル',desc:'ガーランド・バルーン・ケーキ。季節問わず需要あり',
+        titleTemplate:'Birthday Party Clipart Bundle | Cute Birthday PNG | Party Printable | Kids Birthday Clipart',
+        difficulty:{demand:92,competition:78,profit:80},
+        makeSteps:['バルーン・ケーキ・星・ガーランドを各2〜3バリエーション描く','カラーバリエーション（ピンク・ブルー・レインボー）で展開','「お誕生日おめでとう」の英語レタリングも追加するとなお良し'],
+        photoTip:'<span>誕生日カードの完成イメージ</span>をモックアップで作ると購入率UP。Canvaの「誕生日カード」テンプレートに自分の素材を当てはめて撮影',
+        extraKw:['first birthday clipart','rainbow birthday png','birthday balloon clipart','party printable set']
+      },
+      {
+        icon:'🌟',name:'教室デコレーション素材',desc:'名前カード・季節の掲示物。先生が大量購入',
+        titleTemplate:'Classroom Decor Printable | Name Tags | Teacher Printable | Back to School Clipart Bundle',
+        difficulty:{demand:80,competition:55,profit:85},
+        makeSteps:['名前カード用のフレームデザインを5種類作る','季節ごとのデコ素材（春・夏・秋・冬）でシリーズ展開','「editable in Canva」にすると先生が自分でカスタムできて人気UP'],
+        photoTip:'<span>実際の教室の壁に貼ったイメージ</span>が一番売れる。自宅でも白い壁にプリントして貼り、撮影するだけでOK',
+        extraKw:['teacher printable bundle','classroom labels','back to school decor','kindergarten printable']
+      }
+    ]
+  },
+  {
+    id:'wellness_art',name:'ウェルネス・ボタニカルアート',color:'#6BAA75',
+    tags:{job:['aroma','yoga','nurse','fitness','florist','therapist'],hobby:['watercolor','garden','minimal','moon','astro','boho','natural_s','coffee'],type:['art','digital_dl','clipart','card']},
+    reason:'アロマやヨガの専門知識があると植物・ハーブの正確な描写と癒やしのデザインが作れます。wellness市場は世界的に急成長中',
+    example:'💡 例：ボタニカルウォールアート、アファメーションカード、アロマハーブガイドポスター',
+    keywords:['botanical wall art printable','wellness affirmation cards','herbal art print','aromatherapy poster','yoga wall art printable','mindfulness print'],
+    price:'$3〜$9',price_note:'1枚$3より「12枚シリーズ$12」の方がよく売れる。セット販売で客単価アップ',
+    actions:['一番好きなハーブを1つ選んで水彩で描く','A4縦サイズPDFで出力','「instant download」「printable wall art」をタグに必ず設定'],
+    products:[
+      {
+        icon:'🌿',name:'ボタニカルウォールアートセット',desc:'ラベンダー・カモミール・ユーカリ。A4印刷対応',
+        titleTemplate:'Botanical Wall Art Printable Set | Watercolor Herb Print | Kitchen Decor | Instant Download',
+        difficulty:{demand:85,competition:60,profit:88},
+        makeSteps:['ラベンダー・カモミール・ユーカリを各1枚水彩で描く','A4（210×297mm）・300dpiでPDF書き出し','Canvaでフレームイメージを作って商品画像に使う','3枚セット$8が売れ筋価格'],
+        photoTip:'<span>額縁に入れた状態</span>のモックアップが売れる。IKEAの白フレームに入れて自然光で撮影が理想。Canvaの額縁モックアップも使えます',
+        extraKw:['herbs wall art','kitchen printable','farmhouse decor print','botanical illustration']
+      },
+      {
+        icon:'🧘',name:'アファメーションカード12枚セット',desc:'癒やしの言葉×イラスト。SNSでバズりやすい',
+        titleTemplate:'Affirmation Cards Printable | Mindfulness Cards | Self Care Gift | Wellness Printable Set',
+        difficulty:{demand:90,competition:72,profit:83},
+        makeSteps:['「I am enough」「You are loved」等の英語フレーズを12個選ぶ','Canvaで名刺サイズ（3.5×2inch）のカードデザイン作成','水彩イラストをCanvaに取り込んで背景に使う','PDF書き出し後、「印刷してすぐ使える」とPRする'],
+        photoTip:'<span>カードを扇形に並べた</span>写真が映える。木のテーブル・ドライフラワーと一緒に撮影するとwellness感UP',
+        extraKw:['positive affirmation cards','mindset cards printable','self love cards','daily affirmation pdf']
+      },
+      {
+        icon:'💆',name:'アロマ精油ガイドポスター',desc:'専門家ならではの正確な情報。ギフト需要も◎',
+        titleTemplate:'Essential Oil Guide Poster | Aromatherapy Print | Herb Benefits Chart | Wellness Wall Art',
+        difficulty:{demand:78,competition:42,profit:90},
+        makeSteps:['よく使う精油10〜15種類の効能・使い方をリサーチ','インフォグラフィック形式でCanvaにまとめる','精油のボタニカルイラストを各自描いて挿入','「プロ監修」感が出るシンプルなデザインが売れる'],
+        photoTip:'<span>精油のボトルと一緒に</span>ポスターを並べた写真が購買意欲を刺激。ディフューザーと一緒に撮影するのもおすすめ',
+        extraKw:['essential oil reference card','aromatherapy guide print','herb chart printable','natural remedy poster']
+      }
+    ]
+  },
+  {
+    id:'japan_art',name:'日本文化・和風デジタル素材',color:'#E74C3C',
+    tags:{job:['illustrator','design','photo'],hobby:['japanese','watercolor','digital','travel','calligraphy','anime'],type:['clipart','art','digital_dl','sticker']},
+    reason:'日本人が作る本物の和風デザインは海外需要が非常に高い。競合の多くが外国人のため、本物感で大きく差別化できます',
+    example:'💡 例：桜・金魚・着物・浮世絵風イラスト素材',
+    keywords:['japanese watercolor clipart','sakura clipart bundle','japanese pattern digital','koi fish art print','wabi sabi wall art','japanese aesthetic png'],
+    price:'$4〜$12',price_note:'「Made in Japan」を商品説明に入れるだけで信頼度UP。英語タイトルで$8前後が最多',
+    actions:['桜か金魚どちらか1つに絞って10枚セットを作る','商品説明に「hand-painted by Japanese artist」を入れる','PinterestにJapanese aestheticカテゴリで投稿'],
+    products:[
+      {
+        icon:'🌸',name:'桜クリップアートバンドル',desc:'花びら・木・枝・ボタニカル。春以外も売れる',
+        titleTemplate:'Sakura Cherry Blossom Clipart Bundle | Japanese Watercolor PNG | Spring Clipart | Commercial Use',
+        difficulty:{demand:86,competition:52,profit:88},
+        makeSteps:['桜の花・花びら・枝・木のシルエットを水彩で描く（計10〜15枚）','PNG透過で書き出し・Zipにまとめる','「Hand-painted by Japanese artist in Japan」を説明文に必ず入れる'],
+        photoTip:'<span>桜の枝を購入して実物と並べて撮影</span>すると圧倒的リアリティ。なければ紙に印刷して桜の生花と一緒に撮影するだけでOK',
+        extraKw:['cherry blossom clipart','sakura png transparent','japanese spring clipart','hanami illustration']
+      },
+      {
+        icon:'🐟',name:'金魚・鯉のウォールアート',desc:'和モダンインテリアとして海外で人気',
+        titleTemplate:'Japanese Goldfish Art Print | Koi Fish Watercolor | Japanese Wall Art | Feng Shui Print',
+        difficulty:{demand:80,competition:38,profit:92},
+        makeSteps:['金魚または鯉を水彩で2〜3バリエーション描く','縦長A4・A3サイズ対応でPDF書き出し','赤・黒・金の3色バリエーションを作ると客層が広がる'],
+        photoTip:'<span>和室や畳と一緒に</span>撮影すると世界観が伝わる。なければ墨流し和紙テクスチャを背景にしたCanvaモックアップが効果的',
+        extraKw:['koi fish print','japanese fish art','feng shui wall decor','oriental art print']
+      },
+      {
+        icon:'🎋',name:'和柄パターン・背景素材',desc:'麻の葉・青海波・市松。商用利用で企業買いも',
+        titleTemplate:'Japanese Pattern Digital Paper | Traditional Washi Pattern | Seamless Tileable PNG | Commercial Use',
+        difficulty:{demand:82,competition:45,profit:85},
+        makeSteps:['麻の葉・青海波・市松・唐草の中から2〜3柄をIllustrator/Canvaで作成','シームレスタイリング（繰り返し可能）にするのがポイント','カラーバリエーション（伝統色）3〜5パターン作成'],
+        photoTip:'<span>和雑貨・器と一緒に</span>テクスチャを重ねた使用例画像が効果的。袋・包装紙・名刺への適用例も見せると用途が伝わる',
+        extraKw:['japanese digital paper','washi pattern','traditional japanese textile','seamless japanese pattern']
+      }
+    ]
+  },
+  {
+    id:'spiritual_art',name:'スピリチュアル・月星座素材',color:'#6C3483',
+    tags:{job:['spiritual'],hobby:['astro','moon','watercolor','digital','minimal','fantasy','planner'],type:['clipart','art','digital_dl','planner_dl','card']},
+    reason:'本職スピリチュアリストの素材は説得力が違う。海外でWitchy aestheticが爆発的人気。月満ち欠け・タロット系は検索数も多い',
+    example:'💡 例：月満ち欠けポスター・タロットジャーナルテンプレート・12星座クリップアートセット',
+    keywords:['moon phase wall art','astrology clipart bundle','witchy aesthetic png','zodiac printable','celestial wall art','tarot journal template'],
+    price:'$3〜$8',price_note:'新月・満月タイミングで新作を出すとタイムリーで売れやすい。Pinterestとの連動が効果的',
+    actions:['月の満ち欠け8フェーズを水彩で描く（1商品として成立）','新月のタイミングに合わせてリリース','Pinterestに「moon ritual」「witchy aesthetic」で投稿'],
+    products:[
+      {
+        icon:'🌙',name:'ムーンフェイズウォールアート',desc:'満ち欠け8フェーズ。インテリアとして通年売れる',
+        titleTemplate:'Moon Phase Wall Art Printable | Lunar Cycle Print | Celestial Decor | Boho Wall Art Instant Download',
+        difficulty:{demand:88,competition:65,profit:85},
+        makeSteps:['満ち欠け8段階の月を水彩で描く（新月〜満月）','横1列に並べた構図が人気。縦バージョンも作ると◎','ゴールド・シルバー・ホワイトの3カラーで展開するとさらに売れる'],
+        photoTip:'<span>ベッドルーム・デスクに飾った</span>モックアップが一番売れる。クリスタルや白いキャンドルと一緒に撮影するとwitchy感UP',
+        extraKw:['moon phase print','lunar wall art','moon cycle printable','celestial nursery decor']
+      },
+      {
+        icon:'⭐',name:'12星座クリップアートバンドル',desc:'誕生日プレゼント需要が高い',
+        titleTemplate:'Zodiac Clipart Bundle | 12 Astrology Signs PNG | Celestial Clipart | Constellation Art',
+        difficulty:{demand:85,competition:58,profit:82},
+        makeSteps:['12星座をそれぞれ水彩またはラインアートで描く','各星座のシンボルと星座絵の2バージョンがあると強い','誕生石カラーを各星座に合わせると差別化できる'],
+        photoTip:'<span>誕生日カードやジュエリーと並べた</span>写真が効果的。バースデー需要に見せるのがポイント',
+        extraKw:['astrology png','star sign clipart','horoscope art','birth chart printable']
+      },
+      {
+        icon:'🔮',name:'タロットジャーナルテンプレート',desc:'月1回使うリピーター向け',
+        titleTemplate:'Tarot Journal Printable | Moon Ritual Journal | Spiritual Planner PDF | Witchy Notebook',
+        difficulty:{demand:80,competition:42,profit:90},
+        makeSteps:['月ごとの引きカード記録欄・感情メモ欄・インテンション設定のページを作成','A4・A5の2サイズPDF対応にするとiPad勢にも売れる','表紙デザインに月・星・水晶モチーフを使う'],
+        photoTip:'<span>タロットカードを実際に並べて</span>テンプレートの上に置いた写真が雰囲気抜群。キャンドルとの組み合わせもおすすめ',
+        extraKw:['moon journal printable','witch planner','spiritual journal pdf','manifestation planner']
+      }
+    ]
+  },
+  {
+    id:'cute_animal',name:'キュートアニマルクリップアート',color:'#F97316',
+    tags:{job:['illustrator'],hobby:['animal','cat','dog','hamster','bird','watercolor','digital','korean'],type:['clipart','digital_dl','sticker']},
+    reason:'動物・ペット系は国境を超えて需要が高い。特に猫・犬・ハムスターのkawaii系は日本テイストが強みになる',
+    example:'💡 例：猫・犬・ハムスターの水彩PNG素材・ステッカーシート',
+    keywords:['cute cat clipart bundle','kawaii animal png','hamster clipart','dog clipart transparent','watercolor pet illustration','cute animal sticker sheet'],
+    price:'$4〜$9',price_note:'10枚以上バンドルで$5〜$7が売れ筋。ハムスター素材は競合が少なく狙い目',
+    actions:['猫かハムスターか、どちらか1種類に絞って10枚描く','1〜2週間で完成させてすぐリリース','ステッカー風モックアップ画像を使うと売れやすい'],
+    products:[
+      {
+        icon:'🐹',name:'ハムスタークリップアートバンドル',desc:'ハム作者ならではの愛情素材。世界中のハム好きに刺さる',
+        titleTemplate:'Hamster Clipart Bundle | Cute Hamster PNG | Kawaii Pet Clipart | Hamster Sticker Sheet',
+        difficulty:{demand:82,competition:28,profit:92},
+        makeSteps:['ハムスターを様々なポーズ・表情で10〜15種類描く（ひまわりを持つ・頬袋パンパン・寝ている等）','PNG透過で書き出し','ステッカーシート風レイアウトも1枚追加で商品価値UP'],
+        photoTip:'<span>本物のハムスターの写真と並べて</span>撮影するとリアリティ抜群！ハムスターを飼っている方限定の最強モックアップ。いなければプリントして木の上に置いて撮影',
+        extraKw:['cute hamster sticker','hamster illustration png','kawaii hamster art','small animal clipart']
+      },
+      {
+        icon:'🐱',name:'かわいい猫クリップアートセット',desc:'表情違い10種類以上。cat loverに刺さる',
+        titleTemplate:'Cute Cat Clipart Bundle | Kawaii Cat PNG | Cat Sticker Sheet | Watercolor Cat Illustration',
+        difficulty:{demand:90,competition:72,profit:82},
+        makeSteps:['寝ている・座っている・遊んでいる等のポーズ10種類描く','色違い（三毛・キジトラ・白・黒）で展開するとバンドル感UP','「cat mom gift」タグで購入者が来やすい'],
+        photoTip:'<span>ステッカー・マグカップ・手帳</span>への使用例モックアップ3点が理想。Canvaの無料モックアップで全部作れます',
+        extraKw:['cat mom clipart','kitten watercolor png','cat illustration bundle','cute cat sticker printable']
+      },
+      {
+        icon:'🐶',name:'犬種別イラストセット',desc:'柴犬・コーギー・フレンチブルドッグが人気',
+        titleTemplate:'Dog Breed Clipart Bundle | Cute Dog PNG | Shiba Inu Clipart | Corgi Illustration | Pet Clipart',
+        difficulty:{demand:88,competition:65,profit:84},
+        makeSteps:['人気犬種TOP5（柴犬・コーギー・フレンチブルドッグ・ゴールデン・チワワ）を描く','日本人が描く柴犬は海外でも特別に見られる。「Japanese Shiba Inu」タグは効果的'],
+        photoTip:'<span>犬のおもちゃや首輪と一緒に</span>並べた写真が購買意欲を高める。ペット好きに刺さる世界観を演出',
+        extraKw:['shiba inu clipart','corgi png sticker','dog lover gift clipart','puppy illustration bundle']
+      }
+    ]
+  },
+  {
+    id:'wedding_template',name:'ウェディング招待状テンプレート',color:'#9B59B6',
+    tags:{job:['wedding','design','illustrator','florist'],hobby:['calligraphy','minimal','watercolor','korean','elegant'],type:['template','digital_dl','card']},
+    reason:'ウェディング業界の知識があると「実際に使われるもの」が作れる。Etsy最大市場の一つで年間を通じて安定',
+    example:'💡 例：Canva編集可能な結婚式招待状・席次表・ウェルカムボードのフルセット',
+    keywords:['wedding invitation template canva','editable wedding invitation','minimalist wedding suite','boho wedding invitation','printable wedding template'],
+    price:'$5〜$20',price_note:'単品より「フルセット（招待状+席次表+サンキューカード）」$18〜$25が売れる',
+    actions:['Canvaで招待状テンプレートを1デザイン作成','「editable」「instant download」と明記','春・秋の挙式シーズン2ヶ月前に新作リリース'],
+    products:[
+      {
+        icon:'💌',name:'Canva結婚式招待状テンプレート',desc:'編集可能。購入後すぐ使えるのが最大の売り',
+        titleTemplate:'Wedding Invitation Template Canva | Editable Wedding Invite | Minimalist Wedding | Instant Download',
+        difficulty:{demand:92,competition:80,profit:85},
+        makeSteps:['Canvaで招待状テンプレートを作成（名前・日付・会場がすべて編集可能にする）','「Canvaで編集する方法」のPDF説明書を同封','英語・日本語両バージョン作ると客層が広がる'],
+        photoTip:'<span>実際の結婚式場の机の上に置いた</span>モックアップが圧倒的に売れる。花束・リング・封筒と一緒に撮影が理想',
+        extraKw:['editable wedding invite','canva wedding template','printable invitation','rustic wedding stationery']
+      },
+      {
+        icon:'🎋',name:'招待状+席次表+サンキューカードセット',desc:'一括セット販売で客単価$20以上',
+        titleTemplate:'Wedding Stationery Set Canva | Complete Wedding Suite | Invitation Seating Chart Thank You Card',
+        difficulty:{demand:88,competition:68,profit:90},
+        makeSteps:['招待状・席次表・サンキューカードの3点セットをCanvaで作成','フォント・カラーを統一してスイート感を出す','価格は$18〜$22に設定、バンドルとして見せる'],
+        photoTip:'<span>3点を並べた俯瞰写真</span>がセット感を伝えるのに最も効果的。フォトブース風の背景（白い布やフラワーウォール）との組み合わせも◎',
+        extraKw:['wedding bundle canva','complete wedding set','invitation seating chart suite','wedding printable collection']
+      },
+      {
+        icon:'🌸',name:'ウェルカムボードテンプレート',desc:'A2サイズ対応。コンビニ印刷可能サイズが人気',
+        titleTemplate:'Wedding Welcome Board Canva | Editable Welcome Sign | Printable Wedding Sign | A2 A3 Instant Download',
+        difficulty:{demand:85,competition:55,profit:88},
+        makeSteps:['A2（420×594mm）サイズでCanvaに作成','テキスト・写真の差し替えをわかりやすくしておく','「コンビニで印刷できる」POP（A3でも可）を商品説明に書く'],
+        photoTip:'<span>結婚式会場のような雰囲気</span>で額縁に入れたモックアップが理想。白い壁+フラワーアレンジメントが鉄板',
+        extraKw:['welcome sign wedding','editable welcome board','printable welcome poster','wedding entrance sign']
+      }
+    ]
+  },
+  {
+    id:'minimal_planner',name:'ミニマルプランナー・デジタル手帳',color:'#34495E',
+    tags:{job:['design','teacher','it'],hobby:['minimal','calligraphy','korean','planner','coffee'],type:['planner_dl','template','digital_dl']},
+    reason:'シンプルで美しいデザインは国境を超えて売れる。GoodNotes対応デジタル手帳市場は毎年20%以上成長中',
+    example:'💡 例：GoodNotes対応デジタル手帳・週間スケジュール・ハビットトラッカー',
+    keywords:['minimalist planner printable','goodnotes template','digital planner ipad','weekly planner pdf','habit tracker printable','aesthetic planner template'],
+    price:'$4〜$15',price_note:'デジタル手帳はリピーター・シリーズ買いが多い。年間版$12〜$18も狙える',
+    actions:['GoodNotes対応A4横型プランナーを1週間分作る','iPadでの使用画面スクショをモックアップに使う','「minimalist」「aesthetic」「goodnotes」3ワードをタイトルに入れる'],
+    products:[
+      {
+        icon:'📓',name:'GoodNotesデジタル手帳',desc:'iPad用。一度作ると何度でも売れるストック収入の王道',
+        titleTemplate:'Digital Planner GoodNotes | iPad Planner Undated | Minimalist Digital Notebook | Hyperlinked PDF',
+        difficulty:{demand:90,competition:70,profit:88},
+        makeSteps:['Canvaでデイリー・ウィークリー・マンスリーの3種ページを作成','PDFリンクを設定してGoodNotes上でタブ移動できるようにする（hyperlinked PDF）','表紙デザインにこだわる（購入決断に一番影響する）'],
+        photoTip:'<span>実際のiPad画面のスクショ</span>が最重要。iPadのモックアップ画像（Canvaにある）と組み合わせてプロっぽい商品画像を作る',
+        extraKw:['hyperlinked digital planner','ipad planner undated','goodnotes notebook','notability template']
+      },
+      {
+        icon:'🗓️',name:'週間・月間プランナーセット',desc:'A4印刷対応。シンプルで使いやすいが売れる',
+        titleTemplate:'Weekly Planner Printable | Monthly Planner PDF | Minimalist Planner A4 | Productivity Printable',
+        difficulty:{demand:86,competition:68,profit:84},
+        makeSteps:['週間ページ（月〜日）＋月間カレンダーの2種類をCanvaで作成','年間・月間・週間・日別の4種類セットにするとバンドル感UP','曜日を入れない「undated」タイプにすると毎年使え続けて売れ続ける'],
+        photoTip:'<span>コーヒーカップや観葉植物と一緒に</span>プランナーを撮影するとライフスタイル感が出る。明るい自然光が必須',
+        extraKw:['undated weekly planner','printable planner bundle','productivity planner pdf','aesthetic daily planner']
+      },
+      {
+        icon:'✅',name:'ハビットトラッカー素材',desc:'自己管理ブームで需要高。SNSで映えるデザイン',
+        titleTemplate:'Habit Tracker Printable | Monthly Habit Tracker | Wellness Tracker PDF | Self Care Planner',
+        difficulty:{demand:88,competition:62,profit:86},
+        makeSteps:['31日分のチェックボックスとカスタム習慣記入欄をデザイン','ウェルネス・フィットネス・学習の3テーマ版を作るとシリーズ展開できる','月ごとのカラー変更（1月=ブルー・2月=ピンク等）でシリーズ購買を促す'],
+        photoTip:'<span>実際に記入したサンプル</span>を写真で見せると「こう使うんだ」とわかってもらいやすい。ステッカーや蛍光ペンと一緒に撮影がinstagram映えする',
+        extraKw:['monthly habit tracker','daily habits printable','fitness tracker pdf','goal tracker planner']
+      }
+    ]
+  },
+  {
+    id:'food_illustration',name:'フードイラスト・和食素材',color:'#E67E22',
+    tags:{job:['cooking','patissier'],hobby:['watercolor','digital','japanese','korean','coffee','cooking_h'],type:['clipart','art','template','digital_dl']},
+    reason:'料理の知識があると食材・盛り付けを正確に美しく描ける。特に和食・抹茶系は海外Japan foodブームで需要爆増中',
+    example:'💡 例：和食クリップアート・スイーツ水彩・レシピカードテンプレート',
+    keywords:['japanese food clipart','food watercolor illustration','ramen clipart bundle','recipe card template canva','bakery clipart png','matcha clipart'],
+    price:'$4〜$10',price_note:'日本食・抹茶系は海外需要特に高い。「Japanese food clipart」は競合が少なめの穴場',
+    actions:['好きな料理5種類を水彩で描いてバンドルにする','タイトルに料理名を英語で入れる（ramen・sushi・matcha等）','Pinterestにfood illustrationボードを作って集客'],
+    products:[
+      {
+        icon:'🍜',name:'和食クリップアートバンドル',desc:'ラーメン・寿司・おにぎり・抹茶。海外Japan food人気が高い',
+        titleTemplate:'Japanese Food Clipart Bundle | Ramen Sushi Onigiri PNG | Kawaii Food Illustration | Commercial Use',
+        difficulty:{demand:84,competition:35,profit:90},
+        makeSteps:['ラーメン・寿司・おにぎり・抹茶・たこやきを各1枚水彩で描く','PNG透過書き出し・Zipにまとめる','「Japanese food lover」「ramen lover」の両タグを活用'],
+        photoTip:'<span>実際の料理と並べて撮影</span>するとリアリティ抜群。お茶碗・箸・和食器と一緒にフラットレイ撮影が映える',
+        extraKw:['kawaii food png','ramen illustration','sushi clipart transparent','japanese cuisine art']
+      },
+      {
+        icon:'🧁',name:'スイーツ・パン水彩イラスト',desc:'カフェ系手帳デコに使いやすい',
+        titleTemplate:'Bakery Clipart Bundle | Watercolor Sweets PNG | Cafe Clipart | Cute Food Illustration Sticker',
+        difficulty:{demand:86,competition:58,profit:84},
+        makeSteps:['マカロン・クロワッサン・カップケーキ・コーヒーを各2〜3バリエーション描く','パステルカラーで統一するとinstagramっぽくなり人気UP','「sticker sheet」形式も追加するとバリエーションが増えて売れやすい'],
+        photoTip:'<span>実際のスイーツと並べた写真</span>が購買意欲を刺激。カフェっぽいセッティング（コーヒーカップ・本・花）で撮影',
+        extraKw:['cafe aesthetic clipart','pastry watercolor','dessert illustration png','bakery art bundle']
+      },
+      {
+        icon:'📋',name:'レシピカードテンプレート（Canva）',desc:'料理教室主宰者が購入するケースも多い',
+        titleTemplate:'Recipe Card Template Canva | Printable Recipe Cards | Editable Recipe Template | Kitchen Printable',
+        difficulty:{demand:80,competition:50,profit:85},
+        makeSteps:['Canvaでレシピカード（4×6inch）のテンプレートを作成','材料リスト・手順・メモ欄のレイアウトを工夫','「ギフトに最適」としてプレゼント用途も訴求する'],
+        photoTip:'<span>キッチンの上に料理と一緒に</span>レシピカードを並べた写真が一番売れる。プリントアウトしてエプロン姿で持った写真も効果的',
+        extraKw:['editable recipe card','printable recipe template','recipe binder','kitchen printable gift']
+      }
+    ]
+  }
+];
+
+// ════════════════════════════════════════
+// スコアリング
+// ════════════════════════════════════════
+const sel = {job:[],hobby:[],type:[],style:[]};
+
+function scoreNiche(n,s){
+  let score=0;
+  score+=(n.tags.job||[]).filter(t=>s.job.includes(t)).length*5;
+  score+=(n.tags.hobby||[]).filter(t=>s.hobby.includes(t)).length*2;
+  score+=(n.tags.type||[]).filter(t=>s.type.includes(t)).length*1.5;
+  if(s.type.includes('undecided'))score+=0.5;
+  return score;
+}
+function getTop(){
+  const scored=DB.map(n=>({n,s:scoreNiche(n,sel)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
+  if(scored.length===0)return DB.slice(0,3);
+  const top=scored.slice(0,4).map(x=>x.n);
+  return top.length>=2?top:[...top,...DB.filter(n=>!top.includes(n)).slice(0,3-top.length)];
+}
+
+// ════════════════════════════════════════
+// UI制御
+// ════════════════════════════════════════
+setTimeout(()=>document.getElementById('splash').classList.add('hide'),2600);
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const p=document.getElementById('page-'+name);
+  if(p)p.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+  document.getElementById('loading-page').classList.remove('show');
+  document.getElementById('scroll-area').scrollTo(0,0);
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(btn.dataset.page==='result'&&!document.getElementById('r-title').textContent){toast('🐹 まず診断してね！');return;}
+    showPage(btn.dataset.page);
+  });
+});
+document.getElementById('btn-go-form').addEventListener('click',()=>showPage('form'));
+document.getElementById('btn-retry').addEventListener('click',()=>{
+  Object.keys(sel).forEach(k=>sel[k]=[]);
+  document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('sel'));
+  updateBtn();showPage('form');
+});
+
+function setupTags(id,key){
+  document.getElementById(id).querySelectorAll('.tag-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      btn.classList.toggle('sel');
+      const v=btn.dataset.val;
+      if(btn.classList.contains('sel'))sel[key].push(v);
+      else sel[key]=sel[key].filter(x=>x!==v);
+      updateBtn();
+    });
+  });
+}
+setupTags('tags-job','job');
+setupTags('tags-hobby','hobby');
+setupTags('tags-type','type');
+setupTags('tags-style','style');
+
+function updateBtn(){
+  const total=Object.values(sel).flat().length;
+  const btn=document.getElementById('btn-analyze');
+  btn.disabled=total===0;
+  document.getElementById('btn-label').textContent=total>0?`${total}個選択 → ニッチ発見！`:'タグを選んでください';
+}
+
+// ════════════════════════════════════════
+// 分析
+// ════════════════════════════════════════
+document.getElementById('btn-analyze').addEventListener('click',()=>{
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('loading-page').classList.add('show');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+
+  const msgs=['あなたの強みを整理中...','Etsyのトレンドと照合中...','ニッチを絞り込み中...','商品アイデアを準備中...','もうすぐ完成！'];
+  const seeds=['🌻','🌻 🌻','🌻 🌻 🌻','🌻 🌻 🌻 🌻','🎉'];
+  let step=0;
+  const fill=document.getElementById('load-fill');
+  const timer=setInterval(()=>{
+    step=Math.min(step+1,msgs.length-1);
+    document.getElementById('load-msg').textContent=msgs[step];
+    document.getElementById('load-seeds').textContent=seeds[step];
+    fill.style.width=((step+1)/msgs.length*90)+'%';
+  },550);
+
+  setTimeout(()=>{
+    clearInterval(timer);fill.style.width='100%';
+    renderResult(getTop());
+    showPage('result');
+    document.getElementById('nav-result').classList.add('active');
+  },3000);
+});
+
+// ════════════════════════════════════════
+// 結果レンダリング
+// ════════════════════════════════════════
+const COLORS=['#C4956A','#6BAA75','#7B68CB','#E0774A'];
+const LEVELS=['🔥 最有力候補','⭐ 高ポテンシャル','💎 穴場ニッチ','✨ おすすめ'];
+
+function renderResult(niches){
+  const titleMap={nursery:'保育士の温かさで作る',nurse:'医療のプロが作る',aroma:'アロマの香りを届ける',yoga:'ヨガのエネルギーを込めた',cooking:'料理の愛情を乗せた',design:'デザイナーの目線で作る',illustrator:'イラストの才能を活かした',teacher:'先生のひらめきから生まれる',spiritual:'スピリチュアルの力を込めた',wedding:'ウェディングの夢を描いた',watercolor:'水彩の透明感あふれる',digital:'デジタルの精度で作る',japanese:'日本の美を世界へ届ける',animal:'動物愛があふれる',hamster:'ハム好きの心を射抜く'};
+  const allSel=Object.values(sel).flat();
+  const tk=allSel.find(k=>titleMap[k])||'watercolor';
+  document.getElementById('r-title').textContent=(titleMap[tk]||'あなただけの')+' Etsyニッチが見つかりました！';
+  document.getElementById('r-summary').textContent=`${niches.length}つのニッチをピックアップしました🐾 商品カードをタップすると詳細・タイトルテンプレ・作り方まで見られます！`;
+
+  const sec=document.getElementById('r-sections');
+  sec.innerHTML='';
+
+  // ── ニッチ一覧 ──
+  sec.innerHTML+=`
+    <div class="r-sec">
+      <div class="sec-lbl" style="color:var(--ham2)">🎯 おすすめEtsyニッチ</div>
+      <div class="niche-list">
+        ${niches.map((n,i)=>`
+          <div class="niche-card">
+            <div class="niche-top">
+              <div class="niche-num" style="background:${COLORS[i]}">${i+1}</div>
+              <div class="niche-name">${n.name}</div>
+              <div class="niche-lv" style="background:${COLORS[i]}22;color:${COLORS[i]}">${LEVELS[i]}</div>
+            </div>
+            <div class="niche-reason">${n.reason}</div>
+            <div class="niche-example">${n.example}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // ── 1位ニッチの商品（タップで詳細展開）──
+  const top=niches[0];
+  const prodColors=['#C4956A','#6BAA75','#5BA4CF'];
+  const prodBg=['#FFF3E8','#F0FFF4','#EEF6FF'];
+  sec.innerHTML+=`
+    <div class="r-sec">
+      <div class="sec-lbl" style="color:#E07060">🎁 1位ニッチの商品 — タップして深掘り！</div>
+      <div class="product-list">
+        ${top.products.map((p,i)=>`
+          <div class="product-card" id="pc-${i}">
+            <div class="product-header" onclick="toggleProduct(${i})">
+              <div class="p-icon-wrap" style="background:${prodBg[i]}">${p.icon}</div>
+              <div class="p-main">
+                <div class="p-name">${p.name}</div>
+                <div class="p-desc">${p.desc}</div>
+              </div>
+              <div class="p-arrow">▼</div>
+            </div>
+            <div class="product-detail" id="pd-${i}">
+              <div class="detail-inner">
+                <!-- 難易度バー -->
+                <div class="detail-block">
+                  <div class="detail-ttl">📊 市場データ</div>
+                  <div class="diff-bar-wrap">
+                    <div class="diff-label">需要</div>
+                    <div class="diff-track"><div class="diff-fill" style="width:0%;background:#F4A261" data-w="${p.difficulty.demand}"></div></div>
+                    <div class="diff-val" style="color:#E08040">${p.difficulty.demand}</div>
+                  </div>
+                  <div class="diff-bar-wrap">
+                    <div class="diff-label">競合度</div>
+                    <div class="diff-track"><div class="diff-fill" style="width:0%;background:#E07060" data-w="${p.difficulty.competition}"></div></div>
+                    <div class="diff-val" style="color:#E07060">${p.difficulty.competition}</div>
+                  </div>
+                  <div class="diff-bar-wrap">
+                    <div class="diff-label">稼げる度</div>
+                    <div class="diff-track"><div class="diff-fill" style="width:0%;background:#6BAA75" data-w="${p.difficulty.profit}"></div></div>
+                    <div class="diff-val" style="color:#6BAA75">${p.difficulty.profit}</div>
+                  </div>
+                </div>
+                <!-- タイトルテンプレ -->
+                <div class="detail-block">
+                  <div class="detail-ttl">📝 Etsyタイトルテンプレ（コピーして使う）</div>
+                  <div class="title-template">${p.titleTemplate}</div>
+                  <button class="btn-copy-title" data-copy="${p.titleTemplate}">📋 コピーする</button>
+                </div>
+                <!-- 作り方 -->
+                <div class="detail-block">
+                  <div class="detail-ttl">🛠️ 具体的な作り方</div>
+                  <div class="step-list">
+                    ${p.makeSteps.map((s,si)=>`<div class="step-item"><div class="s-num">${si+1}</div><div class="s-text">${s}</div></div>`).join('')}
+                  </div>
+                </div>
+                <!-- 写真のコツ -->
+                <div class="detail-block">
+                  <div class="detail-ttl">📸 売れる写真のコツ</div>
+                  <div class="photo-tip">${p.photoTip}</div>
+                </div>
+                <!-- 追加キーワード -->
+                <div class="detail-block">
+                  <div class="detail-ttl">🌻 追加SEOキーワード</div>
+                  <div class="kw-wrap">
+                    ${p.extraKw.map(k=>`<span class="kw-tag hot">${k}</span>`).join('')}
+                  </div>
+                  <button class="btn-kw" data-kw="${p.extraKw.join(', ')}">📋 キーワードをコピー</button>
+                </div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // ── 共通キーワード ──
+  const allKw=[...new Set(niches.flatMap(n=>n.keywords))].slice(0,10);
+  sec.innerHTML+=`
+    <div class="r-sec">
+      <div class="sec-lbl" style="color:var(--seed2)">🌻 SEOキーワード（全ニッチ共通）</div>
+      <div class="kw-wrap">
+        ${allKw.map((k,i)=>`<span class="kw-tag${i<4?' hot':''}">${k}</span>`).join('')}
+      </div>
+      <button class="btn-kw" data-kw="${allKw.join(', ')}">📋 まとめてコピー</button>
+    </div>`;
+
+  // ── 価格帯 ──
+  sec.innerHTML+=`
+    <div class="r-sec">
+      <div class="sec-lbl" style="color:var(--green)">💰 推奨価格帯</div>
+      <div class="price-big">${top.price}</div>
+      <div class="price-note">${top.price_note}</div>
+    </div>`;
+
+  // ── アクション ──
+  sec.innerHTML+=`
+    <div class="r-sec">
+      <div class="sec-lbl" style="color:var(--ham2)">🐹 今すぐ3ステップ</div>
+      <div class="action-list">
+        ${top.actions.map((a,i)=>`<div class="action-item"><div class="a-num">${i+1}</div><div class="a-text">${a}</div></div>`).join('')}
+      </div>
+    </div>`;
+
+  // イベント登録
+  document.querySelectorAll('.btn-copy-title').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      navigator.clipboard.writeText(btn.dataset.copy).then(()=>{
+        btn.textContent='✅ コピーしました！';btn.classList.add('ok');
+        setTimeout(()=>{btn.textContent='📋 コピーする';btn.classList.remove('ok');},2000);
+      });
+    });
+  });
+  document.querySelectorAll('.btn-kw').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      navigator.clipboard.writeText(btn.dataset.kw).then(()=>{
+        btn.textContent='✅ コピーしました！';btn.classList.add('ok');
+        setTimeout(()=>{btn.innerHTML='📋 キーワードをコピー';btn.classList.remove('ok');},2000);
+      });
+    });
+  });
+}
+
+// タップで商品詳細展開
+function toggleProduct(i){
+  const card=document.getElementById('pc-'+i);
+  const isOpen=card.classList.contains('open');
+  // 他を閉じる
+  document.querySelectorAll('.product-card').forEach(c=>c.classList.remove('open'));
+  if(!isOpen){
+    card.classList.add('open');
+    // バーアニメ
+    setTimeout(()=>{
+      card.querySelectorAll('.diff-fill').forEach(el=>{
+        el.style.width=el.dataset.w+'%';
+      });
+    },50);
+  }
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2800)}
+</script>
+</body>
+</html>
