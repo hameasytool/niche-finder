@@ -1,1 +1,1 @@
-# niche-finder
+index.html
